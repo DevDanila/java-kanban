@@ -1,7 +1,9 @@
-import java.util.Objects;
+package com.practicum.java_kanban.model;
+
+import com.practicum.java_kanban.status.Status;
 
 public class Subtask extends Task {
-	private int epicId;
+	private final int epicId;
 
 
 	public Subtask(String title, String description, Status status, int epicId) {
@@ -11,9 +13,5 @@ public class Subtask extends Task {
 
 	public int getEpicId() {
 		return epicId;
-	}
-
-	public void setEpicId(int epicId) {
-		this.epicId = epicId;
 	}
 }
