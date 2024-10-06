@@ -1,4 +1,4 @@
-package com.practicum.java_kanban.status;
+package com.practicum.java_kanban.model;
 
 public enum Status {
 	NEW,

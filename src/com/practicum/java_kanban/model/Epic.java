@@ -1,7 +1,5 @@
 package com.practicum.java_kanban.model;
 
-import com.practicum.java_kanban.status.Status;
-
 import java.util.ArrayList;
 
 public class Epic extends Task {

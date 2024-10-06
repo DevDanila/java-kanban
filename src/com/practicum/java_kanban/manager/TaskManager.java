@@ -3,12 +3,13 @@ package com.practicum.java_kanban.manager;
 import com.practicum.java_kanban.model.Epic;
 import com.practicum.java_kanban.model.Subtask;
 import com.practicum.java_kanban.model.Task;
-import com.practicum.java_kanban.status.Status;
+import com.practicum.java_kanban.model.Status;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TaskManager {
+
 	private final HashMap<Integer, Task> tasks = new HashMap<>();
 	private final HashMap<Integer, Epic> epics = new HashMap<>();
 	private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
@@ -47,48 +48,33 @@ public class TaskManager {
 		updateStatus(subtask.getEpicId());
 	}
 
-	public ArrayList<String> getAllSubtasks() {
-		ArrayList<String> subtasksList = new ArrayList<>();
-		for (Task subtask : subtasks.values()) {
-			subtasksList.add(subtask.getTitle());
-		}
-		return subtasksList;
+	public ArrayList<Subtask> getAllSubtasks() {
+		return new ArrayList<>(subtasks.values());
 	}
 
-	public ArrayList<String> getAllTasks() {
-		ArrayList<String> tasksList = new ArrayList<>();
-		for (Task task : tasks.values()) {
-			tasksList.add(task.getTitle());
-		}
-		return tasksList;
+	public ArrayList<Task> getAllTasks() {
+		return new ArrayList<>(tasks.values());
 	}
 
-	public ArrayList<String> getAllEpics() {
-		ArrayList<String> epicsList = new ArrayList<>();
-		for (Task epic : epics.values()) {
-			epicsList.add(epic.getTitle());
-		}
-		return epicsList;
+	public ArrayList<Epic> getAllEpics() {
+		return new ArrayList<>(epics.values());
 	}
 
 	public void deleteTaskById(int nextId) {
 		tasks.remove(nextId);
 	}
 
-
 	public void deleteEpic(int nextId) {
-		Epic epic = epics.get(nextId);
+		final Epic epic = epics.remove(nextId);
 		for (Integer subtaskId : epic.getSubtaskIds()) {
 			subtasks.remove(subtaskId);
 		}
-		epics.remove(nextId);
 	}
 
 	public void deleteSubtask(int id) {
-		Subtask subtask = subtasks.get(id);
-		Epic epic = epics.get(subtask.getEpicId());
+		Subtask subtask = subtasks.remove(id);
+		Epic epic = epics.remove(subtask.getEpicId());
 		epic.getSubtaskIds().remove((Integer) subtask.getId());
-		subtasks.remove(id);
 		updateStatus(epic.getId());
 	}
 
@@ -102,11 +88,11 @@ public class TaskManager {
 	}
 
 	public void deleteAllSubtask() {
-        subtasks.clear();
-        for (Epic epic : epics.values()) {
-            epic.getSubtaskIds().clear();
-            updateStatus(epic.getId());
-        }
+		subtasks.clear();
+		for (Epic epic : epics.values()) {
+			epic.getSubtaskIds().clear();
+			updateStatus(epic.getId());
+		}
 	}
 
 	public void getTaskById(int nextId) {
@@ -121,22 +107,22 @@ public class TaskManager {
 		subtasks.get(nextId);
 	}
 
-
-	 public ArrayList<Subtask> getSubtaskByEpicId(int epicId) {
+	public ArrayList<Subtask> getSubtaskByEpicId(int epicId) {
 		ArrayList<Subtask> subtasksNew = new ArrayList<>();
 		Epic epic = epics.get(epicId);
-		for (int i = 0; i < epic.getSubtaskIds().size(); i++) {
-                subtasksNew.add(subtasks.get(epic.getSubtaskIds().get(i)));
-            }
-            return subtasksNew;
+		for (Integer subtaskId : epic.getSubtaskIds()) {
+			subtasksNew.add(subtasks.get(subtaskId));
+		}
+		return subtasksNew;
 	}
 
 	private void updateStatus(int epicId) {
 		int countDone = 0;
 		int countNew = 0;
 		Epic epicGetEpicId = epics.get(epicId);
+		ArrayList<Integer> subtaskIds = epicGetEpicId.getSubtaskIds();
 
-		for (Integer subtaskId : epicGetEpicId.getSubtaskIds()) {
+		for (Integer subtaskId : subtaskIds) {
 			Subtask anSubtask = subtasks.get(subtaskId);
 			if (anSubtask.getStatus().equals(Status.DONE)) {
 				countDone++;
@@ -147,9 +133,9 @@ public class TaskManager {
 				return;
 			}
 		}
-		if (countNew == epicGetEpicId.getSubtaskIds().size()) {
+		if (countNew == subtaskIds.size()) {
 			epicGetEpicId.setStatus(Status.NEW);
-		} else if (countDone == epicGetEpicId.getSubtaskIds().size()) {
+		} else if (countDone == subtaskIds.size()) {
 			epicGetEpicId.setStatus(Status.DONE);
 		} else {
 			epicGetEpicId.setStatus(Status.IN_PROGRESS);
