@@ -93,7 +93,3 @@ public class Main {
 		System.out.println(inMemoryHistoryManager.getHistory());
 	}
 }
-//        taskManager.deleteSubtask(6);
-//        System.out.println(taskManager.getAllEpics());
-//        System.out.println(taskManager.getAllSubtasks());
-//
