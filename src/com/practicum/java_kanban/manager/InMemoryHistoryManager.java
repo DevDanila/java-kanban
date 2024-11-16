@@ -1,5 +1,6 @@
 package com.practicum.java_kanban.manager;
 
+import com.practicum.java_kanban.model.Node;
 import com.practicum.java_kanban.model.Task;
 
 import java.util.ArrayList;
@@ -19,8 +20,13 @@ public class InMemoryHistoryManager implements HistoryManager {
 	}
 
 	@Override
+	public void remove(int id) {
+        Node nodeToRemove = queueMap.remove(id);
+        removeNode(nodeToRemove);
+    }
+
+	@Override
 	public List<Task> getHistory() {
-		ArrayList<Task> newHistory = new ArrayList<>(browsingHistory);
-        return newHistory;
+		return new ArrayList<>(browsingHistory);
     }
 }
