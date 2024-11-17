@@ -13,7 +13,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 	private Node<Task> tail;
 	private final Map<Integer, Node<Task>> historyMap = new HashMap<>();
 
-	private static class Node<Task> { // отдельный класс Node для узла списка
+	class Node<Task> { // отдельный класс Node для узла списка
 
 		public Task data;
 		public Node<Task> next;
