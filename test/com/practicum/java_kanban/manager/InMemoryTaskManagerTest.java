@@ -74,12 +74,6 @@ class InMemoryTaskManagerTest {
 		taskManager.addEpic(epic1);
 		taskManager.addSubTask(subtask1);
 
-		taskManager.getTaskById(1);
-		historyTest.add(task1);
-
-		taskManager.getSubtaskById(3);
-		historyTest.add(subtask1);
-
 		taskManager.getEpicById(2);
 		historyTest.add(epic1);
 
@@ -89,6 +83,6 @@ class InMemoryTaskManagerTest {
 		taskManager.getSubtaskById(3);
 		historyTest.add(subtask1);
 
-		assertEquals(historyTest, historyManager.getHistory());//вернули и сравнили
+		assertEquals(historyTest, taskManager.getHistory());//вернули и сравнили
 	}
 }

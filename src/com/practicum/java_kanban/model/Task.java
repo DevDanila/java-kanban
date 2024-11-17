@@ -3,10 +3,10 @@ package com.practicum.java_kanban.model;
 import java.util.Objects;
 
 public class Task {
-	private int id;
-	private String title;
-	private String description;
-	private Status status;
+	protected int id;
+	protected String title;
+	protected String description;
+	protected Status status;
 
 	public Task(String title, String description, Status status) {
 		this.title = title;
@@ -62,11 +62,11 @@ public class Task {
 
 	@Override
 	public String toString() {
-		return "com.practicum.java_kanban.model.Task{" +
-				"id=" + id +
+		return "Task {" +
+				"id='" + id + '\'' +
 				", title='" + title + '\'' +
 				", description='" + description + '\'' +
-				", status=" + status +
+				", status='" + status + '\'' +
 				'}';
 	}
 }
