@@ -13,13 +13,13 @@ public class InMemoryHistoryManager implements HistoryManager {
 	private Node<Task> tail;
 	private final Map<Integer, Node<Task>> historyMap = new HashMap<>();
 
-	class Node<Task> { // отдельный класс Node для узла списка
+	static class Node<E> { // отдельный класс Node для узла списка
 
-		public Task data;
-		public Node<Task> next;
-		public Node<Task> prev;
+		public E data;
+		public Node<E> next;
+		public Node<E> prev;
 
-		public Node(Node<Task> prev, Task data, Node<Task> next) {
+		public Node(Node<E> prev, E data, Node<E> next) {
 			this.data = data;
 			this.next = next;
 			this.prev = prev;
