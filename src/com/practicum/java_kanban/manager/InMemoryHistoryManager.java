@@ -42,6 +42,11 @@ public class InMemoryHistoryManager implements HistoryManager {
 	}
 
 	@Override
+	public void remove(int id) {
+
+	}
+
+	@Override
 	public List<Task> getHistory() {
 		return getTasks();
 	}
@@ -86,8 +91,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 				prev.next = next;
 				next.prev = prev;
 			}
-
-		}
-	}
+    }
+  }
 }
 
