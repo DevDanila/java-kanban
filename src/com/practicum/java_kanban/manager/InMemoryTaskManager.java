@@ -15,7 +15,7 @@ public class InMemoryTaskManager implements TaskManager {
 	private final Map<Integer, Task> tasks = new HashMap<>();
 	private final Map<Integer, Epic> epics = new HashMap<>();
 	private final Map<Integer, Subtask> subtasks = new HashMap<>();
-	private final HistoryManager inMemoryHistoryManager = Managers.getDefaultHistory();
+	private final HistoryManager historyManager = Managers.getDefaultHistory();
 	private int nextId = 1;
 
 	@Override
@@ -75,6 +75,7 @@ public class InMemoryTaskManager implements TaskManager {
 	@Override
 	public void deleteTaskById(int nextId) {
 		tasks.remove(nextId);
+		historyManager.remove(nextId);
 	}
 
 	@Override
@@ -82,7 +83,9 @@ public class InMemoryTaskManager implements TaskManager {
 		final Epic epic = epics.remove(nextId);
 		for (Integer subtaskId : epic.getSubtaskIds()) {
 			subtasks.remove(subtaskId);
+			historyManager.remove(subtaskId);
 		}
+		historyManager.remove(nextId);
 	}
 
 	@Override
@@ -91,6 +94,7 @@ public class InMemoryTaskManager implements TaskManager {
 		Epic epic = epics.remove(subtask.getEpicId());
 		epic.getSubtaskIds().remove((Integer) subtask.getId());
 		updateStatus(epic.getId());
+		historyManager.remove(id);
 	}
 
 	@Override
@@ -116,7 +120,7 @@ public class InMemoryTaskManager implements TaskManager {
 	@Override
 	public Task getTaskById(int nextId) {
 		if (tasks.get(nextId) != null) {
-			inMemoryHistoryManager.add(tasks.get(nextId));
+			historyManager.add(tasks.get(nextId));
 		}
 		return tasks.get(nextId);
 	}
@@ -125,7 +129,7 @@ public class InMemoryTaskManager implements TaskManager {
 	public Epic getEpicById(int nextId) {
 		Epic epic = epics.get(nextId);
 		if (epic != null) {
-			inMemoryHistoryManager.add(epic);
+			historyManager.add(epic);
 		} else {
 			System.out.println("Epic с таким id не найден");
 		}
@@ -136,7 +140,7 @@ public class InMemoryTaskManager implements TaskManager {
 	public Subtask getSubtaskById(int nextId) {
 		Subtask subtask = subtasks.get(nextId);
 		if (subtask != null) {
-			inMemoryHistoryManager.add(subtask);
+			historyManager.add(subtask);
 		} else {
 			System.out.println("Subtask с таким id не найден");
 		}
@@ -155,7 +159,7 @@ public class InMemoryTaskManager implements TaskManager {
 
 	@Override
 	public List<Task> getHistory() {
-		return inMemoryHistoryManager.getHistory();
+		return historyManager.getHistory();
 	}
 
 	private void updateStatus(int epicId) {

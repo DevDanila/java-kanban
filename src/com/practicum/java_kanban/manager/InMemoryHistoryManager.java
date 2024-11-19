@@ -13,13 +13,13 @@ public class InMemoryHistoryManager implements HistoryManager {
 	private Node<Task> tail;
 	private final Map<Integer, Node<Task>> historyMap = new HashMap<>();
 
-	static class Node<Task> { // отдельный класс Node для узла списка
+	private static class Node<E> { // отдельный класс Node для узла списка
 
-		public Task data;
-		public Node<Task> next;
-		public Node<Task> prev;
+		public E data;
+		public Node<E> next;
+		public Node<E> prev;
 
-		public Node(Node<Task> prev, Task data, Node<Task> next) {
+		public Node(Node<E> prev, E data, Node<E> next) {
 			this.data = data;
 			this.next = next;
 			this.prev = prev;
@@ -36,9 +36,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
 	@Override
 	public void remove(int id) {
-		if (historyMap.containsKey(id)) {
-			removeNode(historyMap.get(id));
-		}
+		removeNode(historyMap.get(id));
 	}
 
 	@Override
@@ -48,17 +46,18 @@ public class InMemoryHistoryManager implements HistoryManager {
 
 	private void linkLast(Task task) {
 		final Node<Task> oldTail = tail;
-		final Node<Task> newNode = new Node<>(oldTail, task, null);
+		final Node<Task> newNode = new Node<>(tail, task, null);
 		tail = newNode;
-		historyMap.put(task.getId(), newNode);
 		if (oldTail == null)
 			head = newNode;
 		else
 			oldTail.next = newNode;
+
+		historyMap.put(task.getId(), newNode);
 	}
 
 	private List<Task> getTasks() {
-		List<Task> tasks = new ArrayList<>();
+		List<Task> tasks = new ArrayList<>(historyMap.size());
 		Node<Task> currentNode = head;
 		while (currentNode != null) {
 			tasks.add(currentNode.data);

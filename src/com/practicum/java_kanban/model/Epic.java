@@ -3,7 +3,7 @@ package com.practicum.java_kanban.model;
 import java.util.ArrayList;
 
 public class Epic extends Task {
-	protected final ArrayList<Integer> subtaskIds = new ArrayList<>();
+	private final ArrayList<Integer> subtaskIds = new ArrayList<>();
 
 	public ArrayList<Integer> getSubtaskIds() {
 		return subtaskIds;
