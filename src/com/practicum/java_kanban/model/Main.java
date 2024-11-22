@@ -117,6 +117,7 @@ public class Main {
 		taskManager.getEpicById(5);
 		taskManager.getSubtaskById(6);
 		taskManager.getSubtaskById(6);
+		taskManager.deleteAllSubtask();
 		System.out.println("История просмотров:");
 		System.out.println(taskManager.getHistory());
 	}
