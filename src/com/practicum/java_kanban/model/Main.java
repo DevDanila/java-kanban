@@ -2,8 +2,6 @@ package com.practicum.java_kanban.model;
 
 import com.practicum.java_kanban.manager.*;
 
-import java.io.File;
-
 
 public class Main {
 

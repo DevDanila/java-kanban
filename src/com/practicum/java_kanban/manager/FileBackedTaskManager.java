@@ -13,7 +13,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 	private final File file;
 
 
-
 	public FileBackedTaskManager(File file) {
 		this.file = file;
 		String fileName = ".src\\com\\practicum\\java_kanban\\manager\\dataFile.csv";
