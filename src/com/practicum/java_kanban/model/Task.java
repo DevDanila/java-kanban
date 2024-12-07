@@ -7,11 +7,13 @@ public class Task {
 	protected String title;
 	protected String description;
 	protected Status status;
+	protected TaskType typeTask;
 
-	public Task(String title, String description, Status status) {
+	public Task(String title, String description) {
 		this.title = title;
 		this.description = description;
-		this.status = status;
+		this.status = Status.NEW;
+		this.typeTask = TaskType.TASK;
 	}
 
 
@@ -47,6 +49,11 @@ public class Task {
 		this.status = status;
 	}
 
+	public TaskType  getTypeTask() {
+		return TaskType.TASK;
+	}
+
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -62,16 +69,14 @@ public class Task {
 
 	@Override
 	public String toString() {
-		return "Task {" +
-				"id='" + id + '\'' +
-				", title='" + title + '\'' +
+		return "Task{" +
+				"id=" + id +
+				", name='" + title + '\'' +
+				", status=" + status +
 				", description='" + description + '\'' +
-				", status='" + status + '\'' +
 				'}';
 	}
 }
-
-
 
 
 

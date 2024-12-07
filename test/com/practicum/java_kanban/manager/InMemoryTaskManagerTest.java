@@ -26,10 +26,10 @@ class InMemoryTaskManagerTest {
 	void beforeEach() {
 		historyManager = Managers.getDefaultHistory();
 		taskManager = Managers.getDefault();
-		task1 = new Task("1", "task_1", Status.NEW);
+		task1 = new Task("1", "task_1");
 		epic1 = new Epic("2", "Epic_1");
-		subtask1 = new Subtask("3", "Subtask_1", Status.NEW, 2);
-		subtask2 = new Subtask("4", "Subtask_2", Status.NEW, 2);
+		subtask1 = new Subtask("3", "Subtask_1", 2);
+		subtask2 = new Subtask("4", "Subtask_2", 2);
 
 	}
 
@@ -56,8 +56,8 @@ class InMemoryTaskManagerTest {
 
 	@Test
 	public void testNoConflictWithSpecifiedIdAndGeneratedId() { // проверьте, что задачи с заданным id и сгенерированным id не конфликтуют внутри менеджера;
-		Task task1 = new Task("1", "1", Status.NEW);
-		Task task2 = new Task("2", "1", Status.NEW);
+		Task task1 = new Task("1", "1");
+		Task task2 = new Task("2", "1");
 		task1.setId(1);
 		task2.setId(1);
 

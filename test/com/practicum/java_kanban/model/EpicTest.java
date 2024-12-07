@@ -29,7 +29,7 @@ class EpicTest {
 		Epic epic = new Epic("Epic 1", "Epic 1");
 		epic.setId(1);
 
-		Subtask subtask = new Subtask("Subtask 1", "Subtask 1", Status.NEW, 1);
+		Subtask subtask = new Subtask("Subtask 1", "Subtask 1", 1);
 		subtask.setId(1);
 
 		assertFalse(epic.getSubtaskIds().contains(1));

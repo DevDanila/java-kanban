@@ -2,6 +2,8 @@ package com.practicum.java_kanban.model;
 
 import com.practicum.java_kanban.manager.*;
 
+import java.io.File;
+
 
 public class Main {
 
@@ -9,13 +11,13 @@ public class Main {
 
 		TaskManager taskManager = Managers.getDefault();
 
-		Task task1 = new Task("Прочитать книгу", "Описание 1", Status.NEW);
+		Task task1 = new Task("Прочитать книгу", "Описание 1");
 		taskManager.addTask(task1);
 
-		Task task2 = new Task("Смотреть фильм", "Описание 2", Status.NEW);
+		Task task2 = new Task("Смотреть фильм", "Описание 2");
 		taskManager.addTask(task2);
 
-		Task task3 = new Task("Убраться", "Описание 3", Status.NEW);
+		Task task3 = new Task("Убраться", "Описание 3");
 		taskManager.addTask(task3);
 
 		Epic ep1 = new Epic("Переезд", "Описание эпика 1");
@@ -24,16 +26,16 @@ public class Main {
 		Epic ep2 = new Epic("Переезд2", "Описание эпика 2");
 		taskManager.addEpic(ep2);
 
-		Subtask subtask1 = new Subtask("собрать вещи", "описание подзадачи 1", Status.NEW, 4);
+		Subtask subtask1 = new Subtask("собрать вещи", "описание подзадачи 1", 4);
 		taskManager.addSubTask(subtask1);
 
-		Subtask subtask2 = new Subtask("упаковать вещи", "описание подзадачи 2", Status.DONE, 4);
+		Subtask subtask2 = new Subtask("упаковать вещи", "описание подзадачи 2", 4);
 		taskManager.addSubTask(subtask2);
 
-		Subtask subtask3 = new Subtask("вынести вещи", "описание подзадачи 3", Status.DONE, 4);
+		Subtask subtask3 = new Subtask("вынести вещи", "описание подзадачи 3", 4);
 		taskManager.addSubTask(subtask3);
 
-		Subtask subtask4 = new Subtask("вынести мусор", "описание подзадачи 4", Status.NEW, 5);
+		Subtask subtask4 = new Subtask("вынести мусор", "описание подзадачи 4", 5);
 		taskManager.addSubTask(subtask4);
 
 		System.out.println("--------------------------");
@@ -113,8 +115,22 @@ public class Main {
 		taskManager.getEpicById(5);
 		taskManager.getSubtaskById(6);
 		taskManager.getSubtaskById(6);
-		taskManager.deleteAllSubtask();
+		//taskManager.deleteAllSubtask();
 		System.out.println("История просмотров:");
 		System.out.println(taskManager.getHistory());
+
+		TaskManager file = new FileBackedTaskManager(new File("dataFile.csv"));
+		Task task4 = new Task("Прочитать книгу", "Описание 1");
+		file.addTask(task4);
+		Task task44 = new Task("Прочитать книгу", "Описание 1");
+		file.addTask(task44);
+		Epic ep = new Epic("Переезд2", "Описание эпика 2");
+		file.addEpic(ep);
+		Subtask subtask11 = new Subtask("собрать вещи", "описание подзадачи 1", 3);
+		file.addSubTask(subtask11);
+		Subtask subtask22 = new Subtask("упаковать вещи", "описание подзадачи 2", 3);
+		file.addSubTask(subtask22);
+
+		System.out.println(file);
 	}
 }
