@@ -32,7 +32,6 @@ public class CSVFormat {
 				.append(task.getDescription()).append(",").toString();
 	}
 
-
 	public static Task fromString(String value) {
 		String[] values = value.split(",");
 		String taskId = values[0];
@@ -42,7 +41,7 @@ public class CSVFormat {
 		String description = values[4];
 
 		switch (TaskType.valueOf(taskType)) {
-			case TASK-> {
+			case TASK -> {
 				return new Task(title, description);
 			}
 			case SUBTASK -> {
@@ -54,9 +53,7 @@ public class CSVFormat {
 				epic.setId(Integer.parseInt(taskId));
 				return epic;
 			}
-			default -> {
-				throw new ManagerSaveException("Неизвестный тип задачи " + taskType);
-			}
+			default -> throw new ManagerSaveException("Неизвестный тип задачи " + taskType);
 		}
 	}
 }
