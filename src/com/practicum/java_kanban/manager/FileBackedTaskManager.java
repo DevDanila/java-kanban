@@ -13,48 +13,64 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
 	}
 
+	public static void main(String[] args) {
+		FileBackedTaskManager fileManager = new FileBackedTaskManager(new File("saveTasks2.csv"));
+		fileManager.addTask(new Task("task1", "Купить автомобиль"));
+		fileManager.addEpic(new Epic("new Epic1", "Новый Эпик"));
+		fileManager.addSubTask(new Subtask("New Subtask", "Подзадача", 2));
+		fileManager.addSubTask(new Subtask("New Subtask2", "Подзадача2", 2));
+		System.out.println(fileManager.getAllTasks());
+		System.out.println(fileManager.getAllEpics());
+		System.out.println(fileManager.getAllSubtasks());
+		System.out.println("\n\n" + "new" + "\n\n");
+		FileBackedTaskManager fileBackedTasksManager = loadFromFile(new File("saveTasks2.csv"));
+		System.out.println(fileBackedTasksManager.getAllTasks());
+		System.out.println(fileBackedTasksManager.getAllEpics());
+		System.out.println(fileBackedTasksManager.getAllSubtasks());
+	}
 
-    public void save() {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-            bw.write("id,type,name,status,description,epic\n");
-            bw.newLine();
-            for (Task task : tasks.values()) {
-                bw.write(CSVFormat.toStringCSV(task));
-                bw.newLine();
-            }
-            for (Epic epic : epics.values()) {
-                bw.write(CSVFormat.toStringCSV(epic));
-                bw.newLine();
-                for (Integer subtask : epic.getSubtaskIds()) {
-                    bw.write(CSVFormat.toStringCSV(getSubtaskById(subtask)));
-                    bw.newLine();
-                }
-            }
-        } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка сохранения");
-        }
-    }
+	private void save() {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+			bw.write("id,type,title,status,description,epic\n");
+
+			for (Task task : tasks.values()) {
+				bw.write(CSVFormat.toStringCSV(task));
+				bw.newLine();
+			}
+			for (Epic epic : epics.values()) {
+				bw.write(CSVFormat.toStringCSV(epic));
+				bw.newLine();
+				for (Integer subtask : epic.getSubtaskIds()) {
+					bw.write(CSVFormat.toStringCSV(getSubtaskById(subtask)));
+					bw.newLine();
+				}
+			}
+		} catch (IOException e) {
+			throw new ManagerSaveException("Ошибка сохранения");
+		}
+	}
 
 
 	public static FileBackedTaskManager loadFromFile(File file) {
-        FileBackedTaskManager taskManager = new FileBackedTaskManager(file);
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                Task task = CSVFormat.fromString(line);
-                taskManager.addTask(task);
-            }
-            for (Epic epic : taskManager.getAllEpics()) {
-                for (Integer subtask : epic.getSubtaskIds()) {
-                    taskManager.addSubTask(taskManager.getSubtaskById(subtask));
-                }
-            }
-
-        } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка при чтении файла: " + e.getMessage());
-        }
-        return taskManager;
-    }
+		FileBackedTaskManager taskManager = new FileBackedTaskManager(file);
+		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+			br.readLine();
+			String line;
+			while ((line = br.readLine()) != null) {
+				Task task = CSVFormat.fromString(line);
+				if (task instanceof Epic) {
+					taskManager.addEpic((Epic) task);
+				} else if (task instanceof Subtask) {
+					taskManager.addSubTask((Subtask) task);
+				} else {
+					taskManager.addTask(task);
+				}
+			}
+		} catch (IOException e) {
+			throw new ManagerSaveException("Ошибка при чтении файла: " + e.getMessage());
+		}
+		return taskManager;
+	}
 
 	@Override
 	public void addTask(Task task) {

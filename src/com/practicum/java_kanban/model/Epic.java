@@ -13,10 +13,6 @@ public class Epic extends Task {
 		super(title, description);
 	}
 
-	public TaskType getTaskType() {
-		return TaskType.EPIC;
-	}
-
 	@Override
 	public String toString() {
 		return "Epic {" +

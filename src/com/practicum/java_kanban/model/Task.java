@@ -4,18 +4,18 @@ import java.util.Objects;
 
 public class Task {
 	protected int id;
-	protected String title;
-	protected String description;
-	protected Status status;
 	protected TaskType typeTask;
+	protected String title;
+	protected Status status;
+	protected String description;
+
 
 	public Task(String title, String description) {
 		this.title = title;
 		this.description = description;
 		this.status = Status.NEW;
-		this.typeTask = TaskType.TASK;
+		typeTask = TaskType.TASK;
 	}
-
 
 	public int getId() {
 		return id;
@@ -48,11 +48,6 @@ public class Task {
 	public void setStatus(Status status) {
 		this.status = status;
 	}
-
-	public TaskType  getTypeTask() {
-		return TaskType.TASK;
-	}
-
 
 	@Override
 	public boolean equals(Object o) {

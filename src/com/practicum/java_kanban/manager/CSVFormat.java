@@ -1,8 +1,11 @@
-package com.practicum.java_kanban.model;
+package com.practicum.java_kanban.manager;
 
 import com.practicum.java_kanban.exceptions.ManagerSaveException;
+import com.practicum.java_kanban.model.*;
 
 public class CSVFormat {
+
+	private static Status status;
 
 	private CSVFormat() {
 
@@ -31,23 +34,30 @@ public class CSVFormat {
 
 
 	public static Task fromString(String value) {
-		Task task;
 		String[] values = value.split(",");
-		int taskId = Integer.parseInt(values[0]);
-		TaskType taskType = TaskType.valueOf(values[1]);
+		String taskId = values[0];
+		String taskType = values[1];
 		String title = values[2];
+		String status = values[3];
 		String description = values[4];
-		int epicId = Integer.parseInt(values[5]);
+//		String epicId = values[5];
 
-		if (values[1].equals(TaskType.TASK.toString())) {
-			task = new Task(title, description);
-		} else if (values[1].equals(TaskType.SUBTASK.toString())) {
-			task = new Subtask(title, description, epicId);
-		} else if (values[1].equals(TaskType.EPIC.toString())) {
-			task = new Epic(title, description);
-		} else {
-			throw new ManagerSaveException("Нет такого типа задачи: " + taskType);
+		switch (TaskType.valueOf(taskType)) {
+			case TASK-> {
+				return new Task(title, description);
+			}
+			case SUBTASK -> {
+				return new Subtask(title, description, Integer.parseInt((values[5])));
+			}
+			case EPIC -> {
+				Epic epic = new Epic(title, description);
+				epic.setStatus(Status.valueOf(status));
+				epic.setId(Integer.parseInt(taskId));
+				return epic;
+			}
+			default -> {
+				throw new ManagerSaveException("Неизвестный тип задачи " + taskType);
+			}
 		}
-		return task;
 	}
 }

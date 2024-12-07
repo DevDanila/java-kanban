@@ -1,5 +1,7 @@
 package com.practicum.java_kanban.manager;
 
+import com.practicum.java_kanban.model.Epic;
+import com.practicum.java_kanban.model.Subtask;
 import com.practicum.java_kanban.model.Task;
 import org.junit.jupiter.api.Test;
 
@@ -12,25 +14,30 @@ import static org.junit.jupiter.api.Assertions.*;
 class FileBackedTaskManagerTest {
 
 	@Test
-	public void testSave() throws IOException {
+	public void testSaveAndGetEmptyFile() throws IOException {
 		File testFile = File.createTempFile("testCSV", ".csv");
+		testFile.deleteOnExit();
 		FileBackedTaskManager testManager = new FileBackedTaskManager(testFile);
-		testManager.save();
+
 
 		List<Task> tasks = testManager.getAllTasks();
 		assertEquals(0, tasks.size());
 	}
 
 	@Test
-	public void testSaveOneTask() throws IOException {
+	public void testSaveAndGetTwoTasks() throws IOException {
 		File testFile = File.createTempFile("testCSV", ".csv");
+		testFile.deleteOnExit();
 		FileBackedTaskManager testManager = new FileBackedTaskManager(testFile);
 		Task task = new Task("1", "1");
+		Task task2 = new Epic("2", "2");
+
 		testManager.addTask(task);
-		testManager.save();
+		testManager.addTask(task2);
+
 
 		List<Task> testTasks = testManager.getAllTasks();
-		assertEquals(1, testTasks.size());
+		assertEquals(2, testTasks.size());
 		assertEquals(task, testTasks.getFirst());
 	}
 }
