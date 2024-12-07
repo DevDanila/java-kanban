@@ -40,7 +40,6 @@ public class CSVFormat {
 		String title = values[2];
 		String status = values[3];
 		String description = values[4];
-//		String epicId = values[5];
 
 		switch (TaskType.valueOf(taskType)) {
 			case TASK-> {
