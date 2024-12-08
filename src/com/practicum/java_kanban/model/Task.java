@@ -4,16 +4,18 @@ import java.util.Objects;
 
 public class Task {
 	protected int id;
+	protected TaskType typeTask;
 	protected String title;
-	protected String description;
 	protected Status status;
+	protected String description;
 
-	public Task(String title, String description, Status status) {
+
+	public Task(String title, String description) {
 		this.title = title;
 		this.description = description;
-		this.status = status;
+		this.status = Status.NEW;
+		typeTask = TaskType.TASK;
 	}
-
 
 	public int getId() {
 		return id;
@@ -62,16 +64,14 @@ public class Task {
 
 	@Override
 	public String toString() {
-		return "Task {" +
-				"id='" + id + '\'' +
-				", title='" + title + '\'' +
+		return "Task{" +
+				"id=" + id +
+				", name='" + title + '\'' +
+				", status=" + status +
 				", description='" + description + '\'' +
-				", status='" + status + '\'' +
 				'}';
 	}
 }
-
-
 
 
 

@@ -22,7 +22,7 @@ class ManagersTest {
 	@Test
 	void testCreateCopyTaskManager() {
 		TaskManager taskManager = Managers.getDefault();
-		Task task1 = new Task("Task 1", "task_1", Status.NEW);
+		Task task1 = new Task("Task 1", "task_1");
 		task1.setTitle("Task new");
 		taskManager.updateTask(task1);
 		assertEquals("Task new", task1.getTitle());

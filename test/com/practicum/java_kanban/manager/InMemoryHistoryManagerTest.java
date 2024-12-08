@@ -23,7 +23,7 @@ public class InMemoryHistoryManagerTest {
 
 	@Test
 	void addHistory() {
-		Task task = new Task("Тест1", "Тест 1", Status.NEW);
+		Task task = new Task("Тест1", "Тест 1");
 		historyManager.add(task);
 		final List<Task> history = historyManager.getHistory();
 		assertNotNull(history, "История не пустая");
@@ -32,7 +32,7 @@ public class InMemoryHistoryManagerTest {
 
 	@Test
 	void canDeleteRepeatsFromHistory() {
-		Task task = new Task("Тест2", "Тест 2", Status.NEW);
+		Task task = new Task("Тест2", "Тест 2");
 		taskManager.addTask(task);
 		final int taskId = task.getId();
 		taskManager.getTaskById(taskId);
