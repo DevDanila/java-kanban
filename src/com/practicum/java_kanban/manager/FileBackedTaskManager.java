@@ -4,6 +4,8 @@ import com.practicum.java_kanban.exceptions.ManagerSaveException;
 import com.practicum.java_kanban.model.*;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 	private final File file;
@@ -11,11 +13,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 	public FileBackedTaskManager(File file) {
 		this.file = file;
 
+
 	}
 
 	public static void main(String[] args) {
 		FileBackedTaskManager fileManager = new FileBackedTaskManager(new File("saveTasks2.csv"));
-		fileManager.addTask(new Task("task1", "Купить автомобиль"));
 		fileManager.addEpic(new Epic("new Epic1", "Новый Эпик"));
 		fileManager.addSubTask(new Subtask("New Subtask", "Подзадача", 2));
 		fileManager.addSubTask(new Subtask("New Subtask2", "Подзадача2", 2));
@@ -40,8 +42,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 			for (Epic epic : epics.values()) {
 				bw.write(CSVFormat.toStringCSV(epic));
 				bw.newLine();
-				for (Integer subtask : epic.getSubtaskIds()) {
-					bw.write(CSVFormat.toStringCSV(getSubtaskById(subtask)));
+				for (Subtask subtask : epic.getSubTasks()) {
+					bw.write(CSVFormat.toStringCSV(subtask));
 					bw.newLine();
 				}
 			}
@@ -63,6 +65,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 				} else if (task instanceof Subtask) {
 					taskManager.addSubTask((Subtask) task);
 				} else {
+					assert task != null;
 					taskManager.addTask(task);
 				}
 			}
@@ -72,17 +75,20 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 		return taskManager;
 	}
 
+
 	@Override
-	public void addTask(Task task) {
+	public Task addTask(Task task) {
 		super.addTask(task);
 		save();
 
+		return task;
 	}
 
 	@Override
-	public void addEpic(Epic epic) {
+	public Epic addEpic(Epic epic) {
 		super.addEpic(epic);
 		save();
+		return epic;
 	}
 
 	@Override
@@ -134,8 +140,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 	}
 
 	@Override
-	public void deleteAllTEpics() {
-		super.deleteAllTEpics();
+	public void deleteAllEpics() {
+		super.deleteAllEpics();
 		save();
 	}
 
