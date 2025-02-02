@@ -3,9 +3,7 @@ package com.practicum.java_kanban.manager;
 import com.practicum.java_kanban.model.Epic;
 import com.practicum.java_kanban.model.Subtask;
 import com.practicum.java_kanban.model.Task;
-import com.practicum.java_kanban.model.Status;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
