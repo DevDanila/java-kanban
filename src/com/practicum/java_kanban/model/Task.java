@@ -162,6 +162,10 @@ public class Task {
 				", duration='" + duration + '\'' +
 				'}';
 	}
+
+	public TaskType getType() {
+		return TaskType.TASK;
+	}
 }
 
 

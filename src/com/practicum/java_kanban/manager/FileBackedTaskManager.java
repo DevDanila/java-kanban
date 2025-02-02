@@ -4,8 +4,6 @@ import com.practicum.java_kanban.exceptions.ManagerSaveException;
 import com.practicum.java_kanban.model.*;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 	private final File file;
@@ -31,7 +29,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 		System.out.println(fileBackedTasksManager.getAllSubtasks());
 	}
 
-	private void save() {
+	void save() {
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
 			bw.write("id,type,title,status,description,epic\n");
 
@@ -92,9 +90,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 	}
 
 	@Override
-	public void addSubTask(Subtask subtask) {
+	public Subtask addSubTask(Subtask subtask) {
 		super.addSubTask(subtask);
 		save();
+		return subtask;
 	}
 
 	@Override

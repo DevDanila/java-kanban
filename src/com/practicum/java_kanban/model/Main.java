@@ -94,14 +94,6 @@ public class Main {
 		System.out.println("Все подзадачи:");
 		System.out.println(taskManager.getAllSubtasks());
 
-		System.out.println("--------------------------");
-		System.out.println("Подзадачи эпика c id #4");
-		System.out.println(taskManager.getSubtaskByEpicId(4));
-
-		System.out.println("--------------------------");
-		System.out.println("Подзадачи  эпика c id #5");
-		System.out.println(taskManager.getSubtaskByEpicId(5));
-		;
 		System.out.println("Обновление статуса эпика:");
 		System.out.println(ep1.getStatus());
 		System.out.println("Обновление статуса второго эпика:");

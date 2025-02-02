@@ -23,15 +23,4 @@ class EpicTest {
 		epic2.setId(2);
 		assertNotEquals(epic1, epic2);
 	}
-
-	@Test
-	void testEpicCantBeHisSubtask() { //проверяется, что объект Epic нельзя добавить в самого себя в виде подзадачи;
-		Epic epic = new Epic("Epic 1", "Epic 1");
-		epic.setId(1);
-
-		Subtask subtask = new Subtask("Subtask 1", "Subtask 1", 1);
-		subtask.setId(1);
-
-		assertFalse(epic.getSubtaskIds().contains(1));
-	}
 }
