@@ -29,7 +29,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 		System.out.println(fileBackedTasksManager.getAllSubtasks());
 	}
 
-	void save() {
+	private void save() {
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
 			bw.write("id,type,title,status,description,epic\n");
 
@@ -58,13 +58,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 			String line;
 			while ((line = br.readLine()) != null) {
 				Task task = CSVFormat.fromString(line);
-				if (task instanceof Epic) {
-					taskManager.addEpic((Epic) task);
-				} else if (task instanceof Subtask) {
-					taskManager.addSubTask((Subtask) task);
-				} else {
-					assert task != null;
-					taskManager.addTask(task);
+				switch (task) {
+					case null ->
+							throw new ManagerSaveException("Обнаружена некорректная задача в файле: " + file.getPath());
+					case Epic epic -> taskManager.addEpic(epic);
+					case Subtask subtask -> taskManager.addSubTask(subtask);
+					default -> {
+						taskManager.addTask(task);
+					}
 				}
 			}
 		} catch (IOException e) {

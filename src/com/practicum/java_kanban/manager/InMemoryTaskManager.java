@@ -1,6 +1,7 @@
 package com.practicum.java_kanban.manager;
 
 import com.practicum.java_kanban.model.Epic;
+import com.practicum.java_kanban.model.Status;
 import com.practicum.java_kanban.model.Subtask;
 import com.practicum.java_kanban.model.Task;
 
@@ -14,7 +15,7 @@ public class InMemoryTaskManager implements TaskManager {
 	protected final Map<Integer, Subtask> subtasks = new HashMap<>();
 	private final HistoryManager historyManager = Managers.getDefaultHistory();
 	private final Set<Task> prioritizedTask = new TreeSet<>(Comparator.comparing(Task::getStartTime));
-	protected int nextId = 0;
+	private int nextId = 0;
 
 	private int generatedId() {
 		return ++nextId;
@@ -218,7 +219,7 @@ public class InMemoryTaskManager implements TaskManager {
 		}
 
 		epics.put(epic.getId(), epic);
-		Managers.updatedEpicStatus(epic);
+		updatedEpicStatus(epic);
 	}
 
 	@Override
@@ -246,10 +247,23 @@ public class InMemoryTaskManager implements TaskManager {
 		subtasks.put(subTask.getId(), subTask);
 		epic.removeSubTask(subTask);
 		epic.addSubTask(subTask);
-		Managers.updatedEpicStatus(epic);
+		updatedEpicStatus(epic);
 	}
 
 	private void updateEpicStatus(Epic epic) {
-		Managers.updatedEpicStatus(epic);
+		updatedEpicStatus(epic);
+	}
+
+	private void updatedEpicStatus(Epic epic) {
+		Status newStatus = epic.getSubTasks().stream()
+				.map(Subtask::getStatus)
+				.reduce(Status.NEW, (current, status) -> {
+					if (status == Status.DONE) return Status.DONE;
+					if (current == Status.IN_PROGRESS || status == Status.IN_PROGRESS) return Status.IN_PROGRESS;
+					return current;
+				});
+
+		epic.setStatus(newStatus);
+
 	}
 }
