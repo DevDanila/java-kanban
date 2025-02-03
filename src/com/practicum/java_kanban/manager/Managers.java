@@ -1,9 +1,5 @@
 package com.practicum.java_kanban.manager;
 
-import com.practicum.java_kanban.model.Status;
-import com.practicum.java_kanban.model.Epic;
-import com.practicum.java_kanban.model.Subtask;
-
 public class Managers {
 
 
