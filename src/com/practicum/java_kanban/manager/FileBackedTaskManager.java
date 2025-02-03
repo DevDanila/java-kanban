@@ -29,7 +29,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 		System.out.println(fileBackedTasksManager.getAllSubtasks());
 	}
 
-	private void save() {
+	void save() {
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
 			bw.write("id,type,title,status,description,epic\n");
 
