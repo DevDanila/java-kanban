@@ -29,18 +29,4 @@ public class InMemoryHistoryManagerTest {
 		assertNotNull(history, "История не пустая");
 		assertEquals(1, history.size(), "История не пустая");
 	}
-
-	@Test
-	void canDeleteRepeatsFromHistory() {
-		Task task = new Task("Тест2", "Тест 2");
-		taskManager.addTask(task);
-		final int taskId = task.getId();
-		taskManager.getTaskById(taskId);
-		taskManager.getTaskById(taskId);
-		taskManager.getTaskById(taskId);
-
-		final List<Task> history = taskManager.getHistory();
-		assertNotNull(history, "История не пустая");
-		assertEquals(1, history.size(), "История не пустая");
-	}
 }

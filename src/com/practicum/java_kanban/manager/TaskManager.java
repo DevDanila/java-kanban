@@ -7,11 +7,11 @@ import com.practicum.java_kanban.model.Task;
 import java.util.List;
 
 public interface TaskManager {
-	void addTask(Task task);
+	Task addTask(Task task);
 
-	void addEpic(Epic epic);
+	Epic addEpic(Epic epic);
 
-	void addSubTask(Subtask subtask);
+	Subtask addSubTask(Subtask subtask);
 
 	void updateTask(Task task);
 
@@ -33,7 +33,7 @@ public interface TaskManager {
 
 	void deleteAllTasks();
 
-	void deleteAllTEpics();
+	void deleteAllEpics();
 
 	void deleteAllSubtask();
 
@@ -43,7 +43,7 @@ public interface TaskManager {
 
 	Subtask getSubtaskById(int nextId);
 
-	List<Subtask> getSubtaskByEpicId(int epicId);
-
 	List<Task> getHistory();
+
+	List<Task> getPrioritizedTasks();
 }

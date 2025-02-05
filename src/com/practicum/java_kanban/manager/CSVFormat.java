@@ -1,14 +1,14 @@
 package com.practicum.java_kanban.manager;
 
-import com.practicum.java_kanban.exceptions.ManagerSaveException;
 import com.practicum.java_kanban.model.*;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class CSVFormat {
 
-	private static Status status;
-
-	private CSVFormat() {
-
+	public static String getHeader() {
+		return "id,type,name,status,description,epic" + System.lineSeparator();
 	}
 
 	public static String toStringCSV(Task task) {
@@ -34,26 +34,38 @@ public class CSVFormat {
 
 	public static Task fromString(String value) {
 		String[] values = value.split(",");
-		String taskId = values[0];
-		String taskType = values[1];
-		String title = values[2];
-		String status = values[3];
-		String description = values[4];
-
-		switch (TaskType.valueOf(taskType)) {
-			case TASK -> {
-				return new Task(title, description);
+		int id = Integer.parseInt(values[0]);
+		TaskType taskType = TaskType.valueOf(values[1]);
+		Status status = Status.valueOf(values[3]);
+		LocalDateTime startTime = values[5].equals("null") ? null : LocalDateTime.parse(values[5]);
+		Duration duration = Duration.ofMinutes(Long.parseLong(values[6]));
+		switch (taskType) {
+			case TaskType.TASK -> {
+				Task task = new Task(values[2], values[4]);
+				task.setId(id);
+				task.setStatus(status);
+				task.setStartTime(startTime);
+				task.setDuration(duration);
+				return task;
 			}
-			case SUBTASK -> {
-				return new Subtask(title, description, Integer.parseInt((values[5])));
-			}
-			case EPIC -> {
-				Epic epic = new Epic(title, description);
-				epic.setStatus(Status.valueOf(status));
-				epic.setId(Integer.parseInt(taskId));
+			case TaskType.EPIC -> {
+				Epic epic = new Epic(values[2], values[4]);
+				epic.setId(id);
+				epic.setStatus(status);
+				epic.setStartTime(startTime);
+				epic.setDuration(duration);
 				return epic;
 			}
-			default -> throw new ManagerSaveException("Неизвестный тип задачи " + taskType);
+			case TaskType.SUBTASK -> {
+				Subtask subtask = new Subtask(values[2], values[4], Integer.parseInt(values[7]));
+				subtask.setId(id);
+				subtask.setStatus(status);
+				subtask.setStartTime(startTime);
+				subtask.setDuration(duration);
+				return subtask;
+			}
 		}
+		System.err.println("Ошибка в: " + value);
+		return null;
 	}
 }

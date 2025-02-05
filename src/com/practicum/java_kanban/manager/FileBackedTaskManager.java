@@ -11,11 +11,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 	public FileBackedTaskManager(File file) {
 		this.file = file;
 
+
 	}
 
 	public static void main(String[] args) {
 		FileBackedTaskManager fileManager = new FileBackedTaskManager(new File("saveTasks2.csv"));
-		fileManager.addTask(new Task("task1", "Купить автомобиль"));
 		fileManager.addEpic(new Epic("new Epic1", "Новый Эпик"));
 		fileManager.addSubTask(new Subtask("New Subtask", "Подзадача", 2));
 		fileManager.addSubTask(new Subtask("New Subtask2", "Подзадача2", 2));
@@ -29,7 +29,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 		System.out.println(fileBackedTasksManager.getAllSubtasks());
 	}
 
-	private void save() {
+	void save() {
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
 			bw.write("id,type,title,status,description,epic\n");
 
@@ -40,8 +40,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 			for (Epic epic : epics.values()) {
 				bw.write(CSVFormat.toStringCSV(epic));
 				bw.newLine();
-				for (Integer subtask : epic.getSubtaskIds()) {
-					bw.write(CSVFormat.toStringCSV(getSubtaskById(subtask)));
+				for (Subtask subtask : epic.getSubTasks()) {
+					bw.write(CSVFormat.toStringCSV(subtask));
 					bw.newLine();
 				}
 			}
@@ -58,12 +58,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 			String line;
 			while ((line = br.readLine()) != null) {
 				Task task = CSVFormat.fromString(line);
-				if (task instanceof Epic) {
-					taskManager.addEpic((Epic) task);
-				} else if (task instanceof Subtask) {
-					taskManager.addSubTask((Subtask) task);
-				} else {
-					taskManager.addTask(task);
+				switch (task) {
+					case null ->
+							throw new ManagerSaveException("Обнаружена некорректная задача в файле: " + file.getPath());
+					case Epic epic -> taskManager.addEpic(epic);
+					case Subtask subtask -> taskManager.addSubTask(subtask);
+					default -> {
+						taskManager.addTask(task);
+					}
 				}
 			}
 		} catch (IOException e) {
@@ -72,23 +74,27 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 		return taskManager;
 	}
 
+
 	@Override
-	public void addTask(Task task) {
+	public Task addTask(Task task) {
 		super.addTask(task);
 		save();
 
+		return task;
 	}
 
 	@Override
-	public void addEpic(Epic epic) {
+	public Epic addEpic(Epic epic) {
 		super.addEpic(epic);
 		save();
+		return epic;
 	}
 
 	@Override
-	public void addSubTask(Subtask subtask) {
+	public Subtask addSubTask(Subtask subtask) {
 		super.addSubTask(subtask);
 		save();
+		return subtask;
 	}
 
 	@Override
@@ -134,8 +140,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 	}
 
 	@Override
-	public void deleteAllTEpics() {
-		super.deleteAllTEpics();
+	public void deleteAllEpics() {
+		super.deleteAllEpics();
 		save();
 	}
 
