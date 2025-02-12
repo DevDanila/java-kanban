@@ -18,24 +18,11 @@ public abstract class BaseHttpHandler implements HttpHandler {
 		exchange.close();
 	}
 
-	protected void sendSuccess(HttpExchange exchange) throws IOException {
-		sendText(exchange, "", 200);
-	}
-
-	protected void sendCreated(HttpExchange exchange) throws IOException {
-		sendText(exchange, "", 201);
-	}
-
 	protected void sendNotFound(HttpExchange exchange) throws IOException {
 		sendText(exchange, "Not Found", 404);
 	}
 
 	protected void sendNotAcceptable(HttpExchange exchange) throws IOException {
 		sendText(exchange, "Not Acceptable", 406);
-	}
-
-
-	protected void sendInternalError(HttpExchange exchange) throws IOException {
-		sendText(exchange, "Internal Server Error", 500);
 	}
 }
