@@ -155,7 +155,7 @@ public class Task {
 	public String toString() {
 		return "Task{" +
 				"id=" + id +
-				", name='" + title + '\'' +
+				", title='" + title + '\'' +
 				", status=" + status +
 				", description='" + description + '\'' +
 				", start time='" + startTime + '\'' +
