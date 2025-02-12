@@ -1,6 +1,9 @@
-package com.practicum.java_kanban.model;
+package com.practicum.java_kanban;
 
 import com.practicum.java_kanban.manager.*;
+import com.practicum.java_kanban.model.Epic;
+import com.practicum.java_kanban.model.Subtask;
+import com.practicum.java_kanban.model.Task;
 
 import java.io.File;
 
