@@ -1,5 +1,6 @@
 package com.practicum.java_kanban.http.handlers;
 
+import com.google.gson.Gson;
 import com.practicum.java_kanban.manager.TaskManager;
 import com.practicum.java_kanban.model.Subtask;
 import com.sun.net.httpserver.HttpExchange;
@@ -11,9 +12,11 @@ import java.nio.charset.StandardCharsets;
 
 public class SubtaskHandler extends BaseHttpHandler {
 	private final TaskManager taskManager;
+	private Gson gson = new Gson();
 
-	public SubtaskHandler(TaskManager taskManager) {
+	public SubtaskHandler(TaskManager taskManager, Gson gson) {
 		this.taskManager = taskManager;
+		this.gson = gson;
 	}
 
 	@Override

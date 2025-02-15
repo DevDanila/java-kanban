@@ -8,30 +8,26 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.Objects;
 
 public class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
 
-    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     @Override
-    public void write(JsonWriter jsonWriter, LocalDateTime value) throws IOException {
-        if (Objects.isNull(value)) {
-            jsonWriter.value("null");
+    public void write(JsonWriter out, LocalDateTime localDateTime) throws IOException {
+        if (localDateTime == null) {
+            out.nullValue();
         } else {
-            jsonWriter.value(value.format(dateTimeFormatter));
+            out.value(localDateTime.format(formatter));
         }
     }
 
     @Override
-    public LocalDateTime read(JsonReader jsonReader) throws IOException {
-        LocalDateTime time;
-        try {
-            time = LocalDateTime.parse(jsonReader.nextString(), dateTimeFormatter);
-        } catch (DateTimeParseException ex) {
-            time = null;
+    public LocalDateTime read(JsonReader in) throws IOException {
+        if (in.peek() == com.google.gson.stream.JsonToken.NULL) {
+            in.nextNull();
+            return null;
         }
-        return time;
+        return LocalDateTime.parse(in.nextString(), formatter);
     }
 }

@@ -43,13 +43,13 @@ public class FileBackedTaskManagerTest {
 	}
 
 	@Test
-	public void testCreateTask() {
-		Task task = new Task("Task 1", "Description 1", Duration.ofMinutes(30), LocalDateTime.now());
-		Task createdTask = taskManager.addTask(task);
-		assertNotNull(createdTask);
-		assertEquals("Task 1", createdTask.getTitle());
+   public void testCreateTask() {
+        Task task = new Task("Task 1", "Description 1", Duration.ofMinutes(30), LocalDateTime.now());
+        Task createdTask = taskManager.addTask(task);
+        assertNotNull(createdTask);
+        assertEquals("Task 1", createdTask.getTitle());
 		assertEquals(Status.NEW, createdTask.getStatus());
-	}
+    }
 
 	@Test
 	public void testCreateEpic() {

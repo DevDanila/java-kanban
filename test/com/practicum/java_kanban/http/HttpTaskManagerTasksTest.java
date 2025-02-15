@@ -93,7 +93,7 @@ public class HttpTaskManagerTasksTest {
 
 		assertNotNull(createdTask, "Task should be created");
 		assertEquals("New Task", createdTask.getTitle(), "Task name should match");
-		assertEquals(Status.NEW, createdTask.getStatus(), "Task status should be NEW");
+		assertEquals(Status.NEW, createdTask.getStatus());
 	}
 
 	@Test
