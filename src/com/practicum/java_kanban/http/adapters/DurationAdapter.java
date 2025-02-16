@@ -8,17 +8,21 @@ import java.io.IOException;
 import java.time.Duration;
 
 public class DurationAdapter extends TypeAdapter<Duration> {
-       @Override
-    public void write(JsonWriter jsonWriter, Duration duration) throws IOException {
-        if (duration == null) {
-            jsonWriter.nullValue();
-        } else {
-            jsonWriter.value(duration.toMinutes());
-        }
-    }
+	@Override
+	public void write(JsonWriter jsonWriter, Duration duration) throws IOException {
+		if (duration == null) {
+			jsonWriter.nullValue();
+		} else {
+			jsonWriter.value(duration.toString());
+		}
+	}
 
-    @Override
-    public Duration read(JsonReader jsonReader) throws IOException {
-        return Duration.ofMinutes(Long.parseLong(jsonReader.nextString()));
-    }
+	@Override
+	public Duration read(JsonReader jsonReader) throws IOException {
+		if (jsonReader.peek() == com.google.gson.stream.JsonToken.NULL) {
+			jsonReader.nextNull();
+			return null;
+		}
+		return Duration.parse(jsonReader.nextString());
+	}
 }

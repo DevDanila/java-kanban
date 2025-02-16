@@ -4,35 +4,29 @@ import com.practicum.java_kanban.exceptions.ManagerSaveException;
 import com.practicum.java_kanban.model.*;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
-	private final File file;
+	private final Path file;
 
-	public FileBackedTaskManager(File file) {
+	public FileBackedTaskManager(Path file) {
 		this.file = file;
-
-
-	}
-
-	public static void main(String[] args) {
-		FileBackedTaskManager fileManager = new FileBackedTaskManager(new File("saveTasks2.csv"));
-		fileManager.addEpic(new Epic("new Epic1", "Новый Эпик"));
-		fileManager.addSubTask(new Subtask("New Subtask", "Подзадача", 2));
-		fileManager.addSubTask(new Subtask("New Subtask2", "Подзадача2", 2));
-		System.out.println(fileManager.getAllTasks());
-		System.out.println(fileManager.getAllEpics());
-		System.out.println(fileManager.getAllSubtasks());
-		System.out.println("\n\n" + "new" + "\n\n");
-		FileBackedTaskManager fileBackedTasksManager = loadFromFile(new File("saveTasks2.csv"));
-		System.out.println(fileBackedTasksManager.getAllTasks());
-		System.out.println(fileBackedTasksManager.getAllEpics());
-		System.out.println(fileBackedTasksManager.getAllSubtasks());
+		try {
+			if (Files.exists(file)) {
+				loadFromFile();
+			} else {
+				Files.createFile(file);
+			}
+		} catch (IOException e) {
+			throw new ManagerSaveException("Ошибка чтения или сохранения файла" + e.getMessage());
+		}
 	}
 
 	void save() {
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-			bw.write("id,type,title,status,description,epic\n");
-
+		try (BufferedWriter bw = Files.newBufferedWriter(file)) {
+			bw.write(CSVFormat.getHeader());
+			bw.newLine();
 			for (Task task : tasks.values()) {
 				bw.write(CSVFormat.toStringCSV(task));
 				bw.newLine();
@@ -46,55 +40,83 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 				}
 			}
 		} catch (IOException e) {
-			throw new ManagerSaveException("Ошибка сохранения");
+			throw new ManagerSaveException("Ошибка сохранения" + e.getMessage());
 		}
 	}
 
 
-	public static FileBackedTaskManager loadFromFile(File file) {
+	public static FileBackedTaskManager loadFromFile(Path file) {
 		FileBackedTaskManager taskManager = new FileBackedTaskManager(file);
-		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-			br.readLine();
+		try (BufferedReader br = Files.newBufferedReader(file)) {
 			String line;
 			while ((line = br.readLine()) != null) {
 				Task task = CSVFormat.fromString(line);
-				switch (task) {
-					case null ->
-							throw new ManagerSaveException("Обнаружена некорректная задача в файле: " + file.getPath());
-					case Epic epic -> taskManager.addEpic(epic);
-					case Subtask subtask -> taskManager.addSubTask(subtask);
-					default -> {
-						taskManager.addTask(task);
-					}
+				taskManager.addTask(task);
+			}
+			for (Epic epic : taskManager.getAllEpics()) {
+				for (Subtask subtask : epic.getSubTasks()) {
+					taskManager.addSubTask(subtask);
 				}
 			}
+
 		} catch (IOException e) {
 			throw new ManagerSaveException("Ошибка при чтении файла: " + e.getMessage());
 		}
 		return taskManager;
 	}
 
+	private void loadFromFile() {
+		try (BufferedReader br = Files.newBufferedReader(file)) {
+			String line;
+			int maxId = -1;
+			while ((line = br.readLine()) != null) {
+				Task task = CSVFormat.fromString(line);
+				assert task != null;
+				TaskType type = task.getTypeTask();
+
+				if (type == TaskType.TASK) {
+					tasks.put(task.getId(), task);
+
+				} else if (type == TaskType.EPIC) {
+					Epic epic = (Epic) task;
+					epics.put(task.getId(), epic);
+
+				} else if (type == TaskType.SUBTASK) {
+					Subtask subtask = (Subtask) task;
+					subtasks.put(task.getId(), subtask);
+					final int epicId = subtask.getEpicId();
+					epics.get(epicId).getSubTasks().add(subtask);
+
+				}
+				maxId = Math.max(maxId, task.getId());
+			}
+			nextId = maxId + 1;
+		} catch (IOException e) {
+			throw new ManagerSaveException("Ошибка при чтении файла: " + e.getMessage());
+		}
+	}
+
 
 	@Override
 	public Task addTask(Task task) {
-		super.addTask(task);
+		Task addTask = super.addTask(task);
 		save();
 
-		return task;
+		return addTask;
 	}
 
 	@Override
 	public Epic addEpic(Epic epic) {
-		super.addEpic(epic);
+		Epic addEpic = super.addEpic(epic);
 		save();
-		return epic;
+		return addEpic;
 	}
 
 	@Override
 	public Subtask addSubTask(Subtask subtask) {
-		super.addSubTask(subtask);
+		Subtask addSubtask = super.addSubTask(subtask);
 		save();
-		return subtask;
+		return addSubtask;
 	}
 
 	@Override

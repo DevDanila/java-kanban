@@ -5,9 +5,6 @@ import com.practicum.java_kanban.model.Epic;
 import com.practicum.java_kanban.model.Subtask;
 import com.practicum.java_kanban.model.Task;
 
-import java.io.File;
-
-
 public class Main {
 
 	public static void main(String[] args) {
@@ -110,22 +107,8 @@ public class Main {
 		taskManager.getEpicById(5);
 		taskManager.getSubtaskById(6);
 		taskManager.getSubtaskById(6);
-		//taskManager.deleteAllSubtask();
 		System.out.println("История просмотров:");
 		System.out.println(taskManager.getHistory());
 
-		TaskManager file = new FileBackedTaskManager(new File("dataFile.csv"));
-		Task task4 = new Task("Прочитать книгу", "Описание 1");
-		file.addTask(task4);
-		Task task44 = new Task("Прочитать книгу", "Описание 1");
-		file.addTask(task44);
-		Epic ep = new Epic("Переезд2", "Описание эпика 2");
-		file.addEpic(ep);
-		Subtask subtask11 = new Subtask("собрать вещи", "описание подзадачи 1", 3);
-		file.addSubTask(subtask11);
-		Subtask subtask22 = new Subtask("упаковать вещи", "описание подзадачи 2", 3);
-		file.addSubTask(subtask22);
-
-		System.out.println(file);
 	}
 }

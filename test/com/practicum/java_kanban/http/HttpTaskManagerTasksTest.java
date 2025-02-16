@@ -1,6 +1,7 @@
 package com.practicum.java_kanban.http;
 
 import com.google.gson.Gson;
+import com.practicum.java_kanban.manager.InMemoryTaskManager;
 import com.practicum.java_kanban.manager.Managers;
 import com.practicum.java_kanban.manager.TaskManager;
 import com.practicum.java_kanban.model.Status;
@@ -26,12 +27,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class HttpTaskManagerTasksTest {
 
-	private static final TaskManager manager = Managers.getDefault();
+	private static TaskManager manager = Managers.getDefault();
 	private static HttpTaskServer taskServer;
 	private final Gson gson = Managers.getGson();
 
 	@BeforeAll
 	public static void beforeAll() throws IOException {
+		manager = new InMemoryTaskManager();
 		taskServer = new HttpTaskServer(manager);
 		taskServer.start();
 	}
@@ -65,17 +67,16 @@ public class HttpTaskManagerTasksTest {
 		assertNull(manager.getEpicById(epic.getId()), "Epic should be deleted and return null");
 	}
 
-
 	@Test
 	public void testDeleteSubTask() throws IOException, InterruptedException {
-		Epic dummyEpic = new Epic("Epic for delete", "Description");
-		int epicId = manager.addEpic(dummyEpic).getId();
+		Epic Epic = new Epic("Epic for delete", "Description");
+		int epicId = manager.addEpic(Epic).getId();
 
-		Subtask subtask = new Subtask("Subtask to delete", "Description", epicId);
-		manager.addSubTask(subtask);
+		Subtask subTask = new Subtask("Subtask to delete", "Description", epicId);
+		manager.addSubTask(subTask);
 
 		HttpClient client = HttpClient.newHttpClient();
-		URI url = URI.create("http://localhost:8080/subtasks/" + subtask.getId());
+		URI url = URI.create("http://localhost:8080/subtasks/" + subTask.getId());
 
 		HttpRequest request = HttpRequest.newBuilder().uri(url).DELETE().build();
 		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -83,7 +84,7 @@ public class HttpTaskManagerTasksTest {
 		assertEquals(200, response.statusCode());
 
 
-		assertNull(manager.getSubtaskById(subtask.getId()), "SubTask should be deleted and return null");
+		assertNull(manager.getSubtaskById(subTask.getId()), "SubTask should be deleted and return null");
 	}
 
 	@Test

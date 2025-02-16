@@ -91,11 +91,11 @@ public class Task {
 	}
 
 	public LocalDateTime getEndTime() {
-	      if (startTime == null || duration == null) {
-            return null;
-        }
-        return startTime.plus(duration);
-    }
+		if (startTime == null || duration == null) {
+			return null;
+		}
+		return startTime.plus(duration);
+	}
 
 	@Override
 	public boolean equals(Object o) {

@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 public abstract class BaseHttpHandler implements HttpHandler {
@@ -16,11 +17,20 @@ public abstract class BaseHttpHandler implements HttpHandler {
 		exchange.close();
 	}
 
-	protected void sendNotFound(HttpExchange exchange) throws IOException {
-		sendText(exchange, "Not Found", 404);
+	protected void sendResponse(HttpExchange exchange, String message, int statusCode) throws IOException {
+		byte[] response = message.getBytes();
+		exchange.getResponseHeaders().add("Content-Type", "text/plain");
+		exchange.sendResponseHeaders(statusCode, response.length);
+		try (OutputStream os = exchange.getResponseBody()) {
+			os.write(response);
+		}
 	}
 
-	protected void sendNotAcceptable(HttpExchange exchange) throws IOException {
-		sendText(exchange, "Not Acceptable", 406);
+	protected void sendError(HttpExchange exchange, String errorMessage) throws IOException {
+		sendResponse(exchange, "Ошибка: " + errorMessage, 500);
+	}
+
+	protected void sendNotFound(HttpExchange exchange) throws IOException {
+		sendResponse(exchange, "Ресурс не найден", 404);
 	}
 }

@@ -9,10 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-
 public class SubtaskHandler extends BaseHttpHandler {
 	private final TaskManager taskManager;
-	private Gson gson = new Gson();
+	private final Gson gson;
 
 	public SubtaskHandler(TaskManager taskManager, Gson gson) {
 		this.taskManager = taskManager;
@@ -21,44 +20,88 @@ public class SubtaskHandler extends BaseHttpHandler {
 
 	@Override
 	public void handle(HttpExchange exchange) throws IOException {
-		switch (exchange.getRequestMethod()) {
-			case "GET":
-				if (exchange.getRequestURI().getPath().endsWith("/subtasks")) {
-					sendText(exchange, gson.toJson(taskManager.getAllSubtasks()), 200);
-				} else {
-					int id = Integer.parseInt(exchange.getRequestURI().getPath().split("/")[2]);
-					Subtask subTask = taskManager.getSubtaskById(id);
-					if (subTask != null) {
-						sendText(exchange, gson.toJson(subTask), 200);
-					} else {
-						sendNotFound(exchange);
-					}
-				}
-				break;
-			case "POST":
-				InputStream body = exchange.getRequestBody();
-				String requestBody = new String(body.readAllBytes(), StandardCharsets.UTF_8);
-				Subtask subtask = gson.fromJson(requestBody, Subtask.class);
-				try {
-					if (subtask.getId() == 0) {
-						taskManager.addSubTask(subtask);
-						sendText(exchange, gson.toJson(subtask), 201);
-					} else {
-						taskManager.updateSubTask(subtask);
-						sendText(exchange, gson.toJson(subtask), 200);
-					}
-				} catch (IllegalArgumentException e) {
-					sendNotAcceptable(exchange);
-				}
-				break;
-			case "DELETE":
-				int id = Integer.parseInt(exchange.getRequestURI().getPath().split("/")[2]);
-				taskManager.deleteSubtask(id);
-				sendText(exchange, "SubTask deleted", 200);
-				break;
-			default:
-				sendNotFound(exchange);
-				break;
+		try {
+			switch (exchange.getRequestMethod()) {
+				case "GET":
+					handleGet(exchange);
+					break;
+				case "POST":
+					handlePost(exchange);
+					break;
+				case "DELETE":
+					handleDelete(exchange);
+					break;
+				default:
+					sendNotFound(exchange);
+					break;
+			}
+		} catch (Exception e) {
+			sendError(exchange, e.getMessage());
+		}
+	}
+
+	private void handleGet(HttpExchange exchange) throws IOException {
+		String path = exchange.getRequestURI().getPath();
+
+		if (path.matches("^/subtasks/\\d+$")) {
+			String[] parts = path.split("/");
+			int subtaskId = Integer.parseInt(parts[2]);
+			Subtask subtask = taskManager.getSubtaskById(subtaskId);
+
+			if (subtask == null) {
+				sendResponse(exchange, "Подзадача не найдена", 404);
+			} else {
+				sendText(exchange, gson.toJson(subtask), 200);
+			}
+		} else if (path.equals("/subtasks")) {
+			sendText(exchange, gson.toJson(taskManager.getAllSubtasks()), 200);
+		} else {
+			sendNotFound(exchange);
+		}
+	}
+
+	private void handlePost(HttpExchange exchange) throws IOException {
+		String path = exchange.getRequestURI().getPath();
+		InputStream body = exchange.getRequestBody();
+		String requestBody = new String(body.readAllBytes(), StandardCharsets.UTF_8);
+		Subtask subtask = gson.fromJson(requestBody, Subtask.class);
+
+		if (path.matches("^/subtasks/\\d+$")) {
+			String[] parts = path.split("/");
+			int subtaskId = Integer.parseInt(parts[2]);
+
+			if (taskManager.getSubtaskById(subtaskId) == null) {
+				sendResponse(exchange, "Подзадача не найдена", 404);
+				return;
+			}
+
+			subtask.setId(subtaskId);
+			taskManager.updateSubTask(subtask);
+			sendResponse(exchange, gson.toJson(subtask), 200);
+		} else {
+			if (subtask.getId() != 0) {
+				sendResponse(exchange, "Для новой подзадачи ID должен быть 0", 400);
+				return;
+			}
+			taskManager.addSubTask(subtask);
+			sendResponse(exchange, gson.toJson(subtask), 201);
+		}
+	}
+
+	private void handleDelete(HttpExchange exchange) throws IOException {
+		String path = exchange.getRequestURI().getPath();
+		if (path.matches("^/subtasks/\\d+$")) {
+			String[] parts = path.split("/");
+			int subtaskId = Integer.parseInt(parts[2]);
+
+			if (taskManager.getSubtaskById(subtaskId) == null) {
+				sendResponse(exchange, "Подзадача не найдена", 404);
+				return;
+			}
+			taskManager.deleteSubtask(subtaskId);
+			sendResponse(exchange, "Подзадача удалена", 200);
+		} else {
+			sendNotFound(exchange);
 		}
 	}
 }

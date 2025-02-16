@@ -3,26 +3,33 @@ package com.practicum.java_kanban.http.handlers;
 import com.google.gson.Gson;
 import com.practicum.java_kanban.manager.TaskManager;
 import com.sun.net.httpserver.HttpExchange;
-
 import java.io.IOException;
-
-
 
 public class HistoryHandler extends BaseHttpHandler {
     private final TaskManager taskManager;
-	private Gson gson = new Gson();
+    private final Gson gson;
 
     public HistoryHandler(TaskManager taskManager, Gson gson) {
         this.taskManager = taskManager;
-		this.gson = gson;
+        this.gson = gson;
     }
 
-       @Override
+    @Override
     public void handle(HttpExchange exchange) throws IOException {
-	       if (exchange.getRequestMethod().equals("GET")) {
-		       sendText(exchange, gson.toJson(taskManager.getHistory()), 200);
-	       } else {
-		       sendNotFound(exchange);
-	       }
+        try {
+            if ("GET".equals(exchange.getRequestMethod())) {
+                String path = exchange.getRequestURI().getPath();
+
+                if (path.equals("/history")) {
+                    sendText(exchange, gson.toJson(taskManager.getHistory()), 200);
+                } else {
+                    sendNotFound(exchange);
+                }
+            } else {
+                sendNotFound(exchange);
+            }
+        } catch (Exception e) {
+            sendError(exchange, e.getMessage());
+        }
     }
 }
