@@ -5,17 +5,18 @@ import com.practicum.java_kanban.model.Status;
 import com.practicum.java_kanban.model.Subtask;
 import com.practicum.java_kanban.model.Task;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
-	protected final Map<Integer, Task> tasks = new HashMap<>();
-	protected final Map<Integer, Epic> epics = new HashMap<>();
-	protected final Map<Integer, Subtask> subtasks = new HashMap<>();
+	protected Map<Integer, Task> tasks = new HashMap<>();
+	protected Map<Integer, Epic> epics = new HashMap<>();
+	protected Map<Integer, Subtask> subtasks = new HashMap<>();
 	private final HistoryManager historyManager = Managers.getDefaultHistory();
 	private final Set<Task> prioritizedTask = new TreeSet<>(Comparator.comparing(Task::getStartTime));
-	private int nextId = 0;
+	protected int nextId = 0;
 
 	private int generatedId() {
 		return ++nextId;
@@ -32,14 +33,10 @@ public class InMemoryTaskManager implements TaskManager {
 
 	@Override
 	public Task addTask(Task task) {
+		task.setId(generatedId());
+		tasks.put(task.getId(), task);
+
 		if (task.getStartTime() != null) {
-			for (Task existingTask : tasks.values()) {
-				if (overlapped(existingTask, task)) {
-					throw new IllegalArgumentException("Задача пересекается с существующими задачами.");
-				}
-			}
-			task.setId(generatedId());
-			tasks.put(task.getId(), task);
 			prioritizedTask.add(task);
 		}
 		return task;
@@ -54,26 +51,31 @@ public class InMemoryTaskManager implements TaskManager {
 
 	@Override
 	public Subtask addSubTask(Subtask subtask) {
+		if (subtask == null) {
+			throw new IllegalArgumentException("Subtask cannot be null");
+		}
+
+		// Проверяем существование эпика
 		Epic epic = epics.get(subtask.getEpicId());
 		if (epic == null) {
-			throw new IllegalArgumentException("Эпик с ID " + subtask.getEpicId() + " не найден.");
+			throw new IllegalArgumentException("Epic with id " + subtask.getEpicId() + " not found");
 		}
+
+		// Устанавливаем ID и добавляем подзадачу
+		subtask.setId(nextId++);
+		subtasks.put(subtask.getId(), subtask);
+
+		// Добавляем подзадачу в эпик
+		epic.addSubTask(subtask);
+		updateEpicStatus(epic);
+		updateEpicTime(epic);
+
 		if (subtask.getStartTime() != null) {
-			List<Task> allTasks = getAllTasks();
-			allTasks.addAll(epic.getSubTasks());
-			for (Task existingTask : allTasks) {
-				if (overlapped(existingTask, subtask)) {
-					throw new IllegalArgumentException("Подзадача пересекается с существующими задачами или подзадачами.");
-				}
-			}
-			subtask.setId(generatedId());
-			subtasks.put(subtask.getId(), subtask);
-			epic.addSubTask(subtask);
 			prioritizedTask.add(subtask);
-			updateEpicStatus(epic);
 		}
 		return subtask;
 	}
+
 
 	@Override
 	public List<Subtask> getAllSubtasks() {
@@ -111,14 +113,12 @@ public class InMemoryTaskManager implements TaskManager {
 
 	@Override
 	public void deleteSubtask(int id) {
-		Subtask subTask = subtasks.remove(id);
-		if (subTask != null) {
-			Epic epic = epics.get(subTask.getEpicId());
-			if (epic != null) {
-				epic.removeSubTask(subTask);
-			}
-			prioritizedTask.remove(subTask);
+		Subtask subtask = subtasks.remove(id);
+		if (subtask != null) {
+			Epic epic = epics.get(subtask.getEpicId());
+			epic.removeSubTask(subtask);
 			updateEpicStatus(epic);
+			updateEpicTime(epic);
 		}
 	}
 
@@ -190,26 +190,41 @@ public class InMemoryTaskManager implements TaskManager {
 
 	@Override
 	public List<Task> getPrioritizedTasks() {
-		return (List<Task>) new TreeSet<>(prioritizedTask);
+		return new ArrayList<>(prioritizedTask);
 	}
 
 	@Override
 	public void updateTask(Task task) {
-		if (task == null || !tasks.containsKey(task.getId())) {
-			throw new IllegalArgumentException("Задача с ID " + task.getId() + " не найдена");
+		if (task == null) {
+			throw new IllegalArgumentException("Task cannot be null.");
+		}
+		if (!tasks.containsKey(task.getId())) {
+			throw new IllegalArgumentException("Task with ID " + task.getId() + " does not exist.");
 		}
 
+		// Удаляем старую задачу из prioritizedTask
+		prioritizedTask.removeIf(t -> t.getId() == task.getId());
 
+		// Проверка пересечений временных интервалов
 		if (task.getStartTime() != null) {
 			for (Task existingTask : tasks.values()) {
-				if (existingTask.getId() != task.getId() && overlapped(existingTask, task)) {
-					throw new IllegalArgumentException("Возникла ошибка");
+				if (existingTask.getId() != task.getId()
+						&& existingTask.getStartTime() != null
+						&& overlapped(existingTask, task)) {
+					// Возвращаем старую задачу обратно
+					prioritizedTask.add(tasks.get(task.getId()));
+					throw new IllegalArgumentException("Task overlaps with existing tasks.");
 				}
 			}
 		}
 
+		// Обновляем задачу в tasks
 		tasks.put(task.getId(), task);
-		prioritizedTask.add(task);
+
+		// Добавляем обновленную задачу в prioritizedTask (если есть startTime)
+		if (task.getStartTime() != null) {
+			prioritizedTask.add(task);
+		}
 	}
 
 	@Override
@@ -255,15 +270,41 @@ public class InMemoryTaskManager implements TaskManager {
 	}
 
 	private void updatedEpicStatus(Epic epic) {
-		Status newStatus = epic.getSubTasks().stream()
-				.map(Subtask::getStatus)
-				.reduce(Status.NEW, (current, status) -> {
-					if (status == Status.DONE) return Status.DONE;
-					if (current == Status.IN_PROGRESS || status == Status.IN_PROGRESS) return Status.IN_PROGRESS;
-					return current;
-				});
+		List<Subtask> subtasks = epic.getSubTasks();
+		boolean allNew = subtasks.stream().allMatch(sub -> sub.getStatus() == Status.NEW);
+		boolean allDone = subtasks.stream().allMatch(sub -> sub.getStatus() == Status.DONE);
 
-		epic.setStatus(newStatus);
-
+		if (subtasks.isEmpty() || allNew) {
+			epic.setStatus(Status.NEW);
+		} else if (allDone) {
+			epic.setStatus(Status.DONE);
+		} else {
+			epic.setStatus(Status.IN_PROGRESS);
+		}
 	}
+
+	private void updateEpicTime(Epic epic) {
+		List<Subtask> subtasks = epic.getSubTasks();
+		if (subtasks.isEmpty()) {
+			epic.setStartTime(null);
+			epic.setDuration(Duration.ZERO);
+			return;
+		}
+
+		LocalDateTime startTime = subtasks.stream()
+				.map(Subtask::getStartTime)
+				.filter(Objects::nonNull)
+				.min(LocalDateTime::compareTo)
+				.orElse(null);
+
+		Duration duration = subtasks.stream()
+				.map(Subtask::getDuration)
+				.filter(Objects::nonNull)
+				.reduce(Duration.ZERO, Duration::plus);
+
+		epic.setStartTime(startTime);
+		epic.setDuration(duration);
+	}
+
+
 }

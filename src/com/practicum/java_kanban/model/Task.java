@@ -6,7 +6,6 @@ import java.util.Objects;
 
 public class Task {
 	protected int id;
-	protected TaskType typeTask;
 	protected String title;
 	protected Status status;
 	protected String description;
@@ -22,69 +21,26 @@ public class Task {
 		this.startTime = startTime;
 	}
 
-	public Task(String name, Status status) {
-		this.title = name;
-		this.status = Status.NEW;
-
-	}
-
-	public Task(int id, String name, String description, Status status) {
-
+	public Task(int id, String title, String description) {
 		this.id = id;
-		this.title = name;
-		this.description = description;
-		this.status = Status.NEW;
-	}
-
-	public Task(int id, String name, String description) {
-
-		this.id = id;
-		this.title = name;
-		this.description = description;
-	}
-
-
-	public Task(int id, String description, Status status) {
-		this.id = id;
-		this.description = description;
-		this.status = Status.NEW;
-	}
-
-
-	public Task(int id, String name, Status status, String description, int epicId) {
-
-		this.id = id;
-		this.title = name;
-		this.status = Status.NEW;
-		this.description = description;
-
-	}
-
-	public Task(String name, String description) {
-		this.title = name;
+		this.title = title;
 		this.status = Status.NEW;
 		this.description = description;
 	}
 
-	public Task(int id, String name, Status status, String description, int epicId, Duration duration, LocalDateTime startTime) {
-
-		this.title = name;
+	public Task(String title, String description) {
+		this.title = title;
 		this.status = Status.NEW;
+		this.description = description;
+	}
+
+	public Task(String title, String description, Duration duration, LocalDateTime startTime) {
+		this.title = title;
 		this.description = description;
 		this.duration = duration;
 		this.startTime = startTime;
-
-	}
-
-	public Task(String name, String description, Duration duration, LocalDateTime startTime) {
-		this.title = name;
 		this.status = Status.NEW;
-		this.description = description;
-		this.duration = duration;
-		this.startTime = startTime;
-
 	}
-
 
 	public int getId() {
 		return id;
@@ -135,6 +91,9 @@ public class Task {
 	}
 
 	public LocalDateTime getEndTime() {
+		if (startTime == null || duration == null) {
+			return null;
+		}
 		return startTime.plus(duration);
 	}
 
@@ -155,7 +114,7 @@ public class Task {
 	public String toString() {
 		return "Task{" +
 				"id=" + id +
-				", name='" + title + '\'' +
+				", title='" + title + '\'' +
 				", status=" + status +
 				", description='" + description + '\'' +
 				", start time='" + startTime + '\'' +
@@ -163,7 +122,11 @@ public class Task {
 				'}';
 	}
 
-	public TaskType getType() {
+	public TaskType getTypeTask() {
+		return TaskType.TASK;
+	}
+
+	public TaskType setTypeTask(TaskType typeTask) {
 		return TaskType.TASK;
 	}
 }

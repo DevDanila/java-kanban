@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class CSVFormat {
 
 	public static String getHeader() {
-		return "id,type,name,status,description,epic" + System.lineSeparator();
+		return "id,type,title,status,description,epic" + System.lineSeparator();
 	}
 
 	public static String toStringCSV(Task task) {

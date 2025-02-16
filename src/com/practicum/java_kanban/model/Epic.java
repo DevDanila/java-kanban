@@ -4,12 +4,11 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class Epic extends Task {
 
 	protected LocalDateTime endTime;
-	private final List<Subtask> subtasks = new ArrayList<>();
+	private List<Subtask> subtasks = new ArrayList<>();
 
 	public Epic(String name, String description, Duration duration, LocalDateTime startTime) {
 		super(name, description, duration, startTime);
@@ -22,6 +21,11 @@ public class Epic extends Task {
 
 	public Epic(int id, String name, Status status, String description, Duration duration, LocalDateTime startTime) {
 		super(id, name, status, description, duration, startTime);
+	}
+
+	public Epic() {
+		super("", "", Duration.ZERO, null);
+		this.subtasks = new ArrayList<>();
 	}
 
 	public List<Subtask> getSubTasks() {
@@ -43,23 +47,33 @@ public class Epic extends Task {
 			this.duration = Duration.ZERO;
 			this.startTime = null;
 			this.endTime = null;
-		} else {
-			this.duration = subtasks.stream()
-					.map(Subtask::getDuration)
-					.reduce(Duration.ZERO, Duration::plus);
-
-			this.startTime = subtasks.stream()
-					.map(Subtask::getStartTime)
-					.filter(Objects::nonNull)
-					.min(LocalDateTime::compareTo)
-					.orElse(null);
-
-			this.endTime = subtasks.stream()
-					.map(Subtask::getEndTime)
-					.filter(Objects::nonNull)
-					.max(LocalDateTime::compareTo)
-					.orElse(null);
+			return;
 		}
+
+		// Проверяем, что все подзадачи имеют startTime
+		boolean hasValidTime = subtasks.stream()
+				.allMatch(sub -> sub.getStartTime() != null && sub.getDuration() != null);
+
+		if (!hasValidTime) {
+			this.duration = Duration.ZERO;
+			this.startTime = null;
+			this.endTime = null;
+			return;
+		}
+
+		this.duration = subtasks.stream()
+				.map(Subtask::getDuration)
+				.reduce(Duration.ZERO, Duration::plus);
+
+		this.startTime = subtasks.stream()
+				.map(Subtask::getStartTime)
+				.min(LocalDateTime::compareTo)
+				.orElse(null);
+
+		this.endTime = subtasks.stream()
+				.map(Subtask::getEndTime)
+				.max(LocalDateTime::compareTo)
+				.orElse(null);
 	}
 
 

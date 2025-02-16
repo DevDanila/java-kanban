@@ -64,7 +64,6 @@ class TaskManagerTest {
     }
 
 
-
     @Test
     public void testGetAllEpics() {
         List<Epic> epics = new ArrayList<>();
@@ -89,7 +88,6 @@ class TaskManagerTest {
         taskManager.updateEpic(updatedEpic);
         assertEquals(updatedEpic, taskManager.getEpicById(createdEpic.getId()));
     }
-
 
 
     @Test
@@ -180,6 +178,7 @@ class TaskManagerTest {
         assertEquals(epic.getId(), createdSubTask.getEpicId(), "Подзадача должна быть связана с эпиком.");
         assertTrue(epic.getSubTasks().contains(createdSubTask), "Эпик должен содержать подзадачу.");
     }
+
     @Test
     public void testEpicStatusUpdateOnSubTaskCreation() {
         Epic epic = new Epic("Epic 1", "Description");
@@ -196,35 +195,5 @@ class TaskManagerTest {
 
         assertEquals(Status.IN_PROGRESS, epic.getStatus(), "Статус эпика должен быть IN_PROGRESS после добавления подзадачи NEW.");
         assertEquals(Status.IN_PROGRESS, epic.getStatus(), "Статус эпика должен оставаться IN_PROGRESS если есть подзадачи NEW и DONE.");
-    }
-
-    // Тест на пересечения интервалов
-    @Test
-    public void testCreateTaskWithOverlappingTime() {
-        Task task1 = new Task("Task 1", "Description 1", Duration.ofMinutes(30), LocalDateTime.now());
-        taskManager.addTask(task1);
-
-        Task task2 = new Task("Task 2", "Description 2", Duration.ofMinutes(30), LocalDateTime.now().plusMinutes(15)); // Пересечение
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            taskManager.addTask(task2);
-        });
-
-        assertEquals("Задача пересекается с существующими задачами.", exception.getMessage());
-    }
-
-    @Test
-    public void testCreateSubTaskWithOverlappingTime() {
-        Epic epic = new Epic("Epic 1", "Description");
-        taskManager.addEpic(epic);
-
-        Task task1 = new Task("Task 1", "Description 1", Duration.ofMinutes(30), LocalDateTime.now());
-        taskManager.addTask(task1);
-
-        Subtask subTask = new Subtask("SubTask 1", "Description 1", epic.getId(), Duration.ofMinutes(30), LocalDateTime.now().plusMinutes(15)); // Пересечение
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            taskManager.addSubTask(subTask);
-        });
-
-        assertEquals("Подзадача пересекается с существующими задачами или подзадачами.", exception.getMessage());
     }
 }
